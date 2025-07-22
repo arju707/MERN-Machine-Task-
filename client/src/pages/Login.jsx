@@ -40,7 +40,7 @@ const Login = () => {
       // Navigate to dashboard after a short delay to allow message to be seen
       setTimeout(() => {
         setMessage(null); // Clear message
-        navigate("/dashboard"); // Create dashboard later
+        navigate("/home"); // Create dashboard later
       }, 1500);
     } catch (err) {
       setMessage(err.response?.data?.message || "Login failed"); // Set error message
