@@ -1,5 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Modal from "../components/Modal";
+import AddCategory from "../components/AddCategory";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -14,6 +16,8 @@ const Home = () => {
       navigate("/login");
     }
   }, []);
+
+  const [showAddCategory, setShowAddCategory] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -59,9 +63,18 @@ const Home = () => {
         {/* Main Content */}
         <main className="flex-1 p-6">
           <div className="flex justify-end space-x-4 mb-6">
-            <button className="bg-[#d39c32] text-white px-4 py-2 rounded">Add category</button>
-            <button className="bg-[#d39c32] text-white px-4 py-2 rounded">Add sub category</button>
-            <button className="bg-[#d39c32] text-white px-4 py-2 rounded">Add product</button>
+            <button
+              className="bg-[#d39c32] text-white px-4 py-2 rounded"
+              onClick={() => setShowAddCategory(true)}
+            >
+              Add category
+            </button>
+            <button className="bg-[#d39c32] text-white px-4 py-2 rounded">
+              Add sub category
+            </button>
+            <button className="bg-[#d39c32] text-white px-4 py-2 rounded">
+              Add product
+            </button>
           </div>
 
           {/* Product Grid */}
@@ -115,6 +128,11 @@ const Home = () => {
           </div>
         </main>
       </div>
+
+      {/* ✅ Modal for Add Category */}
+      <Modal isOpen={showAddCategory} onClose={() => setShowAddCategory(false)}>
+        <AddCategory onClose={() => setShowAddCategory(false)} />
+      </Modal>
     </div>
   );
 };
