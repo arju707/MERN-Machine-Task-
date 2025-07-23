@@ -23,22 +23,29 @@ const Home = () => {
   const [showAddSubCategory, setShowAddSubCategory] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(9);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // ✅ Fetch products (with optional search)
+  // ✅ Fetch products
   const fetchProducts = async (
-    query = "",
-    subCategoryFilter = selectedSubCategories
+    query = searchTerm,
+    subCategoryFilter = selectedSubCategories,
+    currentPage = page
   ) => {
     try {
       const params = new URLSearchParams();
       if (query) params.append("search", query);
       if (subCategoryFilter.length > 0)
         params.append("subCategories", subCategoryFilter.join(","));
+      params.append("page", currentPage);
+      params.append("limit", limit);
 
       const res = await axios.get(
         `http://localhost:5000/api/products?${params.toString()}`
       );
-      setProducts(res.data);
+      setProducts(res.data.products);
+      setTotalPages(res.data.totalPages);
     } catch (err) {
       console.error("Failed to fetch products", err);
     }
@@ -49,7 +56,6 @@ const Home = () => {
       navigate("/login");
     }
 
-    // ✅ Call only the proper fetchProducts method
     fetchProducts();
 
     const fetchCategories = async () => {
@@ -69,7 +75,6 @@ const Home = () => {
     fetchCategories();
   }, []);
 
-  // Handle checkbox change (not yet used)
   const handleSubCategoryChange = (e) => {
     const { value, checked } = e.target;
 
@@ -78,11 +83,17 @@ const Home = () => {
         ? [...prev, value]
         : prev.filter((id) => id !== value);
 
-      // Fetch filtered products whenever subcategory changes
-      fetchProducts(searchTerm, updated);
+      setPage(1); // Reset to page 1 on filter
+      fetchProducts(searchTerm, updated, 1);
       return updated;
     });
   };
+
+  const handlePageChange = (num) => {
+    setPage(num);
+    fetchProducts(searchTerm, selectedSubCategories, num);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top Navigation */}
@@ -93,7 +104,10 @@ const Home = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") fetchProducts(searchTerm);
+              if (e.key === "Enter") {
+                setPage(1);
+                fetchProducts(e.target.value, selectedSubCategories, 1);
+              }
             }}
             type="text"
             placeholder="Search any things"
@@ -102,7 +116,10 @@ const Home = () => {
         </div>
         <button
           className="bg-[#d39c32] px-4 py-2 rounded mr-4"
-          onClick={() => fetchProducts(searchTerm)}
+          onClick={() => {
+            setPage(1);
+            fetchProducts(searchTerm, selectedSubCategories, 1);
+          }}
         >
           Search
         </button>
@@ -113,9 +130,9 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Main Content Layout */}
+      {/* Main Content */}
       <div className="flex flex-1">
-        {/* Left Sidebar */}
+        {/* Sidebar */}
         <aside className="w-60 border-r p-4">
           <h2 className="font-bold text-lg mb-2">Categories</h2>
           <ul className="space-y-1 text-sm">
@@ -143,9 +160,8 @@ const Home = () => {
           </ul>
         </aside>
 
-        {/* Main Product Area */}
+        {/* Product List */}
         <main className="flex-1 p-6">
-          {/* Action Buttons */}
           <div className="flex justify-end space-x-4 mb-6">
             <button
               className="bg-[#d39c32] text-white px-4 py-2 rounded"
@@ -159,59 +175,72 @@ const Home = () => {
             >
               Add sub category
             </button>
-            <Link to="/add-product" className="text-blue-600 underline">
+            <Link to="/add-product">
               <button className="bg-[#d39c32] text-white px-4 py-2 rounded">
                 Add product
               </button>
             </Link>
           </div>
-
-          {/* Product Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {products.map((product) => (
-              <div key={product._id} className="border rounded shadow p-4">
-                <img
-                  src={`http://localhost:5000${product.images?.[0]}`}
-                  alt={product.name}
-                  className="w-full h-48 object-cover mb-2 rounded"
-                />
-                <h3 className="font-semibold text-lg">{product.name}</h3>
-                <p className="text-sm text-gray-600 mb-2">
-                  {product.description}
-                </p>
-                <ul className="text-sm">
-                  {product.variants.map((v, i) => (
-                    <li key={i}>
-                      RAM {v.ram} GB – ₹{v.price} ({v.quantity} pcs)
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
+          
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {products.map((product) => (
+                 <Link to={`/product/${product._id}`} key={product._id}>
+                <div key={product._id} className="border rounded shadow p-4">
+                  <img
+                    src={`http://localhost:5000${product.images?.[0]}`}
+                    alt={product.name}
+                    className="w-full h-48 object-cover mb-2 rounded"
+                  />
+                  <h3 className="font-semibold text-lg">{product.name}</h3>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {product.description}
+                  </p>
+                  <ul className="text-sm">
+                    {product.variants.map((v, i) => (
+                      <li key={i}>
+                        RAM {v.ram} GB – ₹{v.price} ({v.quantity} pcs)
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                </Link>
+              ))}
+            </div>
+          
           {/* Pagination */}
           <div className="flex justify-between items-center mt-6">
-            <p className="text-sm text-gray-600">10 of 456 items</p>
+            <p className="text-sm text-gray-600">
+              Page {page} of {totalPages}
+            </p>
             <div className="flex items-center space-x-2">
-              {[1, 2, 3, 4, 5].map((num) => (
-                <button
-                  key={num}
-                  className={`px-3 py-1 rounded-full ${
-                    num === 1 ? "bg-[#d39c32] text-white" : "bg-gray-200"
-                  }`}
-                >
-                  {num}
-                </button>
-              ))}
-              <span className="ml-2">...</span>
-              <button className="px-3 py-1 rounded-full bg-gray-200">10</button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (num) => (
+                  <button
+                    key={num}
+                    className={`px-3 py-1 rounded-full ${
+                      num === page ? "bg-[#d39c32] text-white" : "bg-gray-200"
+                    }`}
+                    onClick={() => handlePageChange(num)}
+                  >
+                    {num}
+                  </button>
+                )
+              )}
             </div>
             <div className="text-sm">
               Show{" "}
-              <select className="border rounded px-2 py-1 ml-1">
-                <option>10 rows</option>
-                <option>20 rows</option>
+              <select
+                value={limit}
+                onChange={(e) => {
+                  setLimit(parseInt(e.target.value));
+                  setPage(1);
+                  fetchProducts(searchTerm, selectedSubCategories, 1);
+                }}
+                className="border rounded px-2 py-1 ml-1"
+              >
+                <option value={9}>9 rows</option>
+                <option value={12}>12 rows</option>
+                <option value={15}>15 rows</option>
               </select>
             </div>
           </div>
