@@ -1,11 +1,10 @@
-// routes/productRoutes.js
 import express from "express";
 import multer from "multer";
 import Product from "../models/Product.js";
 
 const router = express.Router();
 
-// Multer setup to save images to /uploads
+// Multer setup
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/");
@@ -18,19 +17,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// POST: Create a new product
+// POST: Create product
 router.post("/", upload.array("images"), async (req, res) => {
   try {
     const { title, description, subCategory, variants } = req.body;
-     const parsedVariants = JSON.parse(variants);
-      console.log("Parsed Variants on backend:", parsedVariants);
+    const parsedVariants = JSON.parse(variants);
 
     const newProduct = new Product({
       name: title,
       description,
       subCategoryId: subCategory,
-      variants: JSON.parse(variants),
-      
+      variants: parsedVariants,
       images: req.files.map((file) => `/uploads/${file.filename}`),
     });
 
@@ -42,18 +39,24 @@ router.post("/", upload.array("images"), async (req, res) => {
   }
 });
 
-
-// Get all products
+// ✅ Unified GET: All products + search
 router.get("/", async (req, res) => {
+  const { search } = req.query;
+  const query = {};
+
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ];
+  }
+
   try {
-    const products = await Product.find().populate("subCategoryId");
+    const products = await Product.find(query).populate("subCategoryId");
     res.json(products);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-  
-  
 });
-
 
 export default router;
