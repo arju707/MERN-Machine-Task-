@@ -22,12 +22,15 @@ const upload = multer({ storage });
 router.post("/", upload.array("images"), async (req, res) => {
   try {
     const { title, description, subCategory, variants } = req.body;
+     const parsedVariants = JSON.parse(variants);
+      console.log("Parsed Variants on backend:", parsedVariants);
 
     const newProduct = new Product({
       name: title,
       description,
       subCategoryId: subCategory,
       variants: JSON.parse(variants),
+      
       images: req.files.map((file) => `/uploads/${file.filename}`),
     });
 
@@ -38,5 +41,19 @@ router.post("/", upload.array("images"), async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+
+// Get all products
+router.get("/", async (req, res) => {
+  try {
+    const products = await Product.find().populate("subCategoryId");
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+  
+  
+});
+
 
 export default router;

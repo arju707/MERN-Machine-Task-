@@ -16,7 +16,11 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
     variants: [variantSchema],
-    images: [String], // Stores image file names or paths
+    images: [
+      {
+        type: String,
+      },
+    ],
   },
   { timestamps: true }
 );

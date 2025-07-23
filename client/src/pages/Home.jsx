@@ -6,8 +6,6 @@ import AddCategory from "../components/AddCategory";
 import AddSubCategory from "../components/AddSubCategory";
 import { Link } from "react-router-dom";
 
-
-
 const Home = () => {
   const navigate = useNavigate();
 
@@ -25,26 +23,34 @@ const Home = () => {
   const [showAddSubCategory, setShowAddSubCategory] = useState(false);
 
   const [products, setProducts] = useState([]);
+  console.log(products);
 
- useEffect(() => {
-  if (!isAuthenticated()) {
-    navigate("/login");
-  }
-
-  const fetchCategories = async () => {
-    try {
-      const catRes = await axios.get("http://localhost:5000/api/categories");
-      setCategories(catRes.data);
-
-      const subRes = await axios.get("http://localhost:5000/api/subcategories");
-      setSubCategories(subRes.data);
-    } catch (err) {
-      console.error("Error fetching category data", err);
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      navigate("/login");
     }
-  };
 
-  fetchCategories();
-}, []);
+    axios
+      .get("http://localhost:5000/api/products")
+      .then((res) => setProducts(res.data))
+      .catch((err) => console.error("Failed to fetch products", err));
+
+    const fetchCategories = async () => {
+      try {
+        const catRes = await axios.get("http://localhost:5000/api/categories");
+        setCategories(catRes.data);
+
+        const subRes = await axios.get(
+          "http://localhost:5000/api/subcategories"
+        );
+        setSubCategories(subRes.data);
+      } catch (err) {
+        console.error("Error fetching category data", err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // Handle checkbox change
   const handleSubCategoryChange = (e) => {
@@ -78,29 +84,29 @@ const Home = () => {
       <div className="flex flex-1">
         {/* Left Sidebar */}
         <aside className="w-60 border-r p-4">
-  <h2 className="font-bold text-lg mb-2">Categories</h2>
-  <ul className="space-y-1 text-sm">
-    <li className="font-semibold cursor-pointer">All categories</li>
+          <h2 className="font-bold text-lg mb-2">Categories</h2>
+          <ul className="space-y-1 text-sm">
+            <li className="font-semibold cursor-pointer">All categories</li>
 
-    {categories.map((cat) => (
-      <li key={cat._id}>
-        <div className="font-semibold">{cat.name}</div>
+            {categories.map((cat) => (
+              <li key={cat._id}>
+                <div className="font-semibold">{cat.name}</div>
 
-        {subCategories
-          .filter((sub) => sub.categoryId === cat._id)
-          .map((sub) => (
-            <label
-              key={sub._id}
-              className="flex items-center space-x-2 ml-4"
-            >
-              <input type="checkbox" />
-              <span>{sub.name}</span>
-            </label>
-          ))}
-      </li>
-    ))}
-  </ul>
-</aside>
+                {subCategories
+                  .filter((sub) => sub.categoryId === cat._id)
+                  .map((sub) => (
+                    <label
+                      key={sub._id}
+                      className="flex items-center space-x-2 ml-4"
+                    >
+                      <input type="checkbox" />
+                      <span>{sub.name}</span>
+                    </label>
+                  ))}
+              </li>
+            ))}
+          </ul>
+        </aside>
 
         {/* Main Product Area */}
         <main className="flex-1 p-6">
@@ -119,34 +125,37 @@ const Home = () => {
               Add sub category
             </button>
             <Link to="/add-product" className="text-blue-600 underline">
-            <button className="bg-[#d39c32] text-white px-4 py-2 rounded" >
-              Add product
-            </button>
+              <button className="bg-[#d39c32] text-white px-4 py-2 rounded">
+                Add product
+              </button>
             </Link>
           </div>
 
           {/* Product Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {Array(6)
-              .fill(0)
-              .map((_, idx) => (
-                <div
-                  key={idx}
-                  className="border rounded-lg p-4 shadow-sm flex flex-col items-center"
-                >
-                  <img
-                    src="https://via.placeholder.com/150"
-                    alt="product"
-                    className="w-full h-40 object-cover mb-2"
-                  />
-                  <h3 className="font-semibold mb-1">HP AMD Ryzen 3</h3>
-                  <p className="text-[#0b3d5c] font-bold">$529.99</p>
-                  <div className="flex justify-between w-full mt-2">
-                    <span className="text-gray-400">⭐️⭐️⭐️⭐️⭐️</span>
-                    <span className="cursor-pointer">❤️</span>
-                  </div>
-                </div>
-              ))}
+            {products.map((product) => (
+              
+              <div key={product._id} className="border rounded shadow p-4">
+                
+                <img
+                  src={`http://localhost:5000${product.images?.[0]}`}
+                  alt={product.name}
+                  className="w-full h-48 object-cover mb-2 rounded"
+                />
+                
+                <h3 className="font-semibold text-lg">{product.name}</h3>
+                <p className="text-sm text-gray-600 mb-2">
+                  {product.description}
+                </p>
+                <ul className="text-sm">
+                  {product.variants.map((v, i) => (
+                    <li key={i}>
+                      RAM {v.ram} GB – ₹{v.price} ({v.quantity} pcs)
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
 
           {/* Pagination */}
@@ -182,10 +191,12 @@ const Home = () => {
         <AddCategory onClose={() => setShowAddCategory(false)} />
       </Modal>
 
-      <Modal isOpen={showAddSubCategory} onClose={() => setShowAddSubCategory(false)}>
+      <Modal
+        isOpen={showAddSubCategory}
+        onClose={() => setShowAddSubCategory(false)}
+      >
         <AddSubCategory onClose={() => setShowAddSubCategory(false)} />
       </Modal>
-
     </div>
   );
 };
