@@ -4,6 +4,8 @@ import axios from "axios";
 import Modal from "../components/Modal";
 import AddCategory from "../components/AddCategory";
 import AddSubCategory from "../components/AddSubCategory";
+import AddProduct from "../components/AddProduct";
+
 
 const Home = () => {
   const navigate = useNavigate();
@@ -20,6 +22,7 @@ const Home = () => {
   const [selectedSubCategories, setSelectedSubCategories] = useState([]);
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [showAddSubCategory, setShowAddSubCategory] = useState(false);
+  const [showAddProduct, setShowAddProduct] = useState(false);
 
   // Fetch categories & sub-categories
   useEffect(() => {
@@ -115,7 +118,7 @@ const Home = () => {
             >
               Add sub category
             </button>
-            <button className="bg-[#d39c32] text-white px-4 py-2 rounded">
+            <button className="bg-[#d39c32] text-white px-4 py-2 rounded" onClick={() => setShowAddProduct(true)}>
               Add product
             </button>
           </div>
@@ -180,6 +183,10 @@ const Home = () => {
       <Modal isOpen={showAddSubCategory} onClose={() => setShowAddSubCategory(false)}>
         <AddSubCategory onClose={() => setShowAddSubCategory(false)} />
       </Modal>
+
+      <Modal isOpen={showAddProduct} onClose={() => setShowAddProduct(false)}>
+  <AddProduct onClose={() => setShowAddProduct(false)} />
+</Modal>
     </div>
   );
 };
