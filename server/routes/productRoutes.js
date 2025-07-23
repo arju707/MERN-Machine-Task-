@@ -1,50 +1,40 @@
+// routes/productRoutes.js
 import express from "express";
 import multer from "multer";
 import Product from "../models/Product.js";
 
 const router = express.Router();
 
-// Set up multer storage (in-memory)
-const storage = multer.memoryStorage();
+// Multer setup to save images to /uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + "-" + file.originalname;
+    cb(null, uniqueName);
+  },
+});
+
 const upload = multer({ storage });
 
-// Create Product - supports multipart/form-data with images
+// POST: Create a new product
 router.post("/", upload.array("images"), async (req, res) => {
   try {
     const { title, description, subCategory, variants } = req.body;
 
-    // Parse the variants JSON string
-    const parsedVariants = JSON.parse(variants);
-
-    // Extract image info (file buffers if storing locally, or upload to cloud)
-    const imageData = req.files.map((file) => ({
-      filename: file.originalname,
-      mimetype: file.mimetype,
-      buffer: file.buffer, // only if storing in DB or local
-    }));
-
-    const product = new Product({
-      title,
+    const newProduct = new Product({
+      name: title,
       description,
-      subCategory,
-      variants: parsedVariants,
-      images: imageData, // you may store just URLs instead
+      subCategoryId: subCategory,
+      variants: JSON.parse(variants),
+      images: req.files.map((file) => `/uploads/${file.filename}`),
     });
 
-    const saved = await product.save();
+    const saved = await newProduct.save();
     res.status(201).json(saved);
   } catch (err) {
-    console.error("❌ Error saving product:", err.message);
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Get All Products
-router.get("/", async (req, res) => {
-  try {
-    const products = await Product.find().populate("categoryId subCategoryId");
-    res.json(products);
-  } catch (err) {
+    console.error("❌ BACKEND ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 });
