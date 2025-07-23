@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
 import AddCategory from "../components/AddCategory";
+import axios from "axios";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -11,10 +12,23 @@ const Home = () => {
     return token && token.length > 10;
   };
 
+  const [categories, setCategories]=useState([]);
+
   useEffect(() => {
     if (!isAuthenticated()) {
       navigate("/login");
     }
+
+     const fetchCategories = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/categories");
+      setCategories(res.data);
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+    }
+  };
+
+  fetchCategories();
   }, []);
 
   const [showAddCategory, setShowAddCategory] = useState(false);
@@ -42,23 +56,17 @@ const Home = () => {
       {/* Content Layout */}
       <div className="flex flex-1">
         {/* Left Sidebar */}
-        <aside className="w-60 border-r p-4">
-          <h2 className="font-bold text-lg mb-2">Categories</h2>
-          <ul className="space-y-1 text-sm">
-            <li className="font-semibold">All categories</li>
-            <li>
-              <div className="font-semibold">Laptop</div>
-              <label className="flex items-center space-x-2 ml-4">
-                <input type="checkbox" /> <span>Hp</span>
-              </label>
-              <label className="flex items-center space-x-2 ml-4">
-                <input type="checkbox" /> <span>Dell</span>
-              </label>
-            </li>
-            <li className="font-semibold">Tablet</li>
-            <li className="font-semibold">Headphones</li>
-          </ul>
-        </aside>
+       <aside className="w-60 border-r p-4">
+  <h2 className="font-bold text-lg mb-2">Categories</h2>
+  <ul className="space-y-1 text-sm">
+    <li className="font-semibold cursor-pointer">All categories</li>
+    {categories.map((cat) => (
+      <li key={cat._id} className="font-semibold cursor-pointer hover:text-[#d39c32]">
+        {cat.name}
+      </li>
+    ))}
+  </ul>
+</aside>
 
         {/* Main Content */}
         <main className="flex-1 p-6">
