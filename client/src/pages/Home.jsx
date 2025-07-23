@@ -21,19 +21,28 @@ const Home = () => {
   const [selectedSubCategories, setSelectedSubCategories] = useState([]);
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [showAddSubCategory, setShowAddSubCategory] = useState(false);
-
+  const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
-  console.log(products);
+
+  // ✅ Fetch products (with optional search)
+  const fetchProducts = async (query = "") => {
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/products?search=${encodeURIComponent(query)}`
+      );
+      setProducts(res.data);
+    } catch (err) {
+      console.error("Failed to fetch products", err);
+    }
+  };
 
   useEffect(() => {
     if (!isAuthenticated()) {
       navigate("/login");
     }
 
-    axios
-      .get("http://localhost:5000/api/products")
-      .then((res) => setProducts(res.data))
-      .catch((err) => console.error("Failed to fetch products", err));
+    // ✅ Call only the proper fetchProducts method
+    fetchProducts();
 
     const fetchCategories = async () => {
       try {
@@ -52,7 +61,7 @@ const Home = () => {
     fetchCategories();
   }, []);
 
-  // Handle checkbox change
+  // Handle checkbox change (not yet used)
   const handleSubCategoryChange = (e) => {
     const { value, checked } = e.target;
     setSelectedSubCategories((prev) =>
@@ -67,12 +76,22 @@ const Home = () => {
         <div className="text-xl font-bold">MyStore</div>
         <div className="flex-1 mx-6">
           <input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") fetchProducts(searchTerm);
+            }}
             type="text"
             placeholder="Search any things"
             className="w-full p-2 rounded"
           />
         </div>
-        <button className="bg-[#d39c32] px-4 py-2 rounded mr-4">Search</button>
+        <button
+          className="bg-[#d39c32] px-4 py-2 rounded mr-4"
+          onClick={() => fetchProducts(searchTerm)}
+        >
+          Search
+        </button>
         <div className="flex items-center space-x-4">
           <span className="cursor-pointer">❤️</span>
           <span className="cursor-pointer">Sign in</span>
@@ -87,11 +106,9 @@ const Home = () => {
           <h2 className="font-bold text-lg mb-2">Categories</h2>
           <ul className="space-y-1 text-sm">
             <li className="font-semibold cursor-pointer">All categories</li>
-
             {categories.map((cat) => (
               <li key={cat._id}>
                 <div className="font-semibold">{cat.name}</div>
-
                 {subCategories
                   .filter((sub) => sub.categoryId === cat._id)
                   .map((sub) => (
@@ -99,7 +116,11 @@ const Home = () => {
                       key={sub._id}
                       className="flex items-center space-x-2 ml-4"
                     >
-                      <input type="checkbox" />
+                      <input
+                        type="checkbox"
+                        onChange={handleSubCategoryChange}
+                        value={sub._id}
+                      />
                       <span>{sub.name}</span>
                     </label>
                   ))}
@@ -134,15 +155,12 @@ const Home = () => {
           {/* Product Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {products.map((product) => (
-              
               <div key={product._id} className="border rounded shadow p-4">
-                
                 <img
                   src={`http://localhost:5000${product.images?.[0]}`}
                   alt={product.name}
                   className="w-full h-48 object-cover mb-2 rounded"
                 />
-                
                 <h3 className="font-semibold text-lg">{product.name}</h3>
                 <p className="text-sm text-gray-600 mb-2">
                   {product.description}
@@ -190,7 +208,6 @@ const Home = () => {
       <Modal isOpen={showAddCategory} onClose={() => setShowAddCategory(false)}>
         <AddCategory onClose={() => setShowAddCategory(false)} />
       </Modal>
-
       <Modal
         isOpen={showAddSubCategory}
         onClose={() => setShowAddSubCategory(false)}
