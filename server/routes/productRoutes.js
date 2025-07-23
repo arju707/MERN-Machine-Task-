@@ -39,9 +39,10 @@ router.post("/", upload.array("images"), async (req, res) => {
   }
 });
 
-// ✅ GET: All products with optional search + subCategory filtering
+// ✅ GET: Products with search, subCategory filter, and pagination
 router.get("/", async (req, res) => {
-  const { search, subCategories } = req.query;
+  const { search, subCategories, page = 1, limit = 10 } = req.query;
+
   const query = {};
 
   // Search logic
@@ -52,15 +53,37 @@ router.get("/", async (req, res) => {
     ];
   }
 
-  // Sub-category filtering logic
+  // Sub-category filter logic
   if (subCategories) {
     const ids = subCategories.split(",");
     query.subCategoryId = { $in: ids };
   }
 
   try {
-    const products = await Product.find(query).populate("subCategoryId");
-    res.json(products);
+    const total = await Product.countDocuments(query);
+    const products = await Product.find(query)
+      .populate("subCategoryId")
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit));
+
+    res.json({
+      total,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(total / limit),
+      products,
+    });
+  } catch (err) {
+    console.error("❌ Fetch Error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET: Get product by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id).populate("subCategoryId");
+    if (!product) return res.status(404).json({ message: "Product not found" });
+    res.json(product);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
