@@ -25,10 +25,18 @@ const Home = () => {
   const [products, setProducts] = useState([]);
 
   // ✅ Fetch products (with optional search)
-  const fetchProducts = async (query = "") => {
+  const fetchProducts = async (
+    query = "",
+    subCategoryFilter = selectedSubCategories
+  ) => {
     try {
+      const params = new URLSearchParams();
+      if (query) params.append("search", query);
+      if (subCategoryFilter.length > 0)
+        params.append("subCategories", subCategoryFilter.join(","));
+
       const res = await axios.get(
-        `http://localhost:5000/api/products?search=${encodeURIComponent(query)}`
+        `http://localhost:5000/api/products?${params.toString()}`
       );
       setProducts(res.data);
     } catch (err) {
@@ -64,11 +72,17 @@ const Home = () => {
   // Handle checkbox change (not yet used)
   const handleSubCategoryChange = (e) => {
     const { value, checked } = e.target;
-    setSelectedSubCategories((prev) =>
-      checked ? [...prev, value] : prev.filter((id) => id !== value)
-    );
-  };
 
+    setSelectedSubCategories((prev) => {
+      const updated = checked
+        ? [...prev, value]
+        : prev.filter((id) => id !== value);
+
+      // Fetch filtered products whenever subcategory changes
+      fetchProducts(searchTerm, updated);
+      return updated;
+    });
+  };
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top Navigation */}
@@ -119,7 +133,7 @@ const Home = () => {
                       <input
                         type="checkbox"
                         onChange={handleSubCategoryChange}
-                        value={sub._id}
+                        checked={selectedSubCategories.includes(sub._id)}
                       />
                       <span>{sub.name}</span>
                     </label>

@@ -39,16 +39,23 @@ router.post("/", upload.array("images"), async (req, res) => {
   }
 });
 
-// ✅ Unified GET: All products + search
+// ✅ GET: All products with optional search + subCategory filtering
 router.get("/", async (req, res) => {
-  const { search } = req.query;
+  const { search, subCategories } = req.query;
   const query = {};
 
+  // Search logic
   if (search) {
     query.$or = [
       { name: { $regex: search, $options: "i" } },
       { description: { $regex: search, $options: "i" } },
     ];
+  }
+
+  // Sub-category filtering logic
+  if (subCategories) {
+    const ids = subCategories.split(",");
+    query.subCategoryId = { $in: ids };
   }
 
   try {
