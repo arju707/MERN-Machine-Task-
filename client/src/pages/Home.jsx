@@ -1,37 +1,54 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import Modal from "../components/Modal";
 import AddCategory from "../components/AddCategory";
-import axios from "axios";
+import AddSubCategory from "../components/AddSubCategory";
 
 const Home = () => {
   const navigate = useNavigate();
 
+  // Auth check
   const isAuthenticated = () => {
     const token = localStorage.getItem("token");
     return token && token.length > 10;
   };
 
-  const [categories, setCategories]=useState([]);
+  // State
+  const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [selectedSubCategories, setSelectedSubCategories] = useState([]);
+  const [showAddCategory, setShowAddCategory] = useState(false);
+  const [showAddSubCategory, setShowAddSubCategory] = useState(false);
 
+  // Fetch categories & sub-categories
   useEffect(() => {
     if (!isAuthenticated()) {
       navigate("/login");
     }
 
-     const fetchCategories = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/categories");
-      setCategories(res.data);
-    } catch (err) {
-      console.error("Error fetching categories:", err);
-    }
-  };
+    const fetchData = async () => {
+      try {
+        const catRes = await axios.get("http://localhost:5000/api/categories");
+        setCategories(catRes.data);
 
-  fetchCategories();
+        const subRes = await axios.get("http://localhost:5000/api/subcategories");
+        setSubCategories(subRes.data);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  const [showAddCategory, setShowAddCategory] = useState(false);
+  // Handle checkbox change
+  const handleSubCategoryChange = (e) => {
+    const { value, checked } = e.target;
+    setSelectedSubCategories((prev) =>
+      checked ? [...prev, value] : prev.filter((id) => id !== value)
+    );
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -53,23 +70,38 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Content Layout */}
+      {/* Main Content Layout */}
       <div className="flex flex-1">
         {/* Left Sidebar */}
-       <aside className="w-60 border-r p-4">
-  <h2 className="font-bold text-lg mb-2">Categories</h2>
-  <ul className="space-y-1 text-sm">
-    <li className="font-semibold cursor-pointer">All categories</li>
-    {categories.map((cat) => (
-      <li key={cat._id} className="font-semibold cursor-pointer hover:text-[#d39c32]">
-        {cat.name}
-      </li>
-    ))}
-  </ul>
-</aside>
+        <aside className="w-60 border-r p-4">
+          <h2 className="font-bold text-lg mb-2">Categories</h2>
+          <ul className="space-y-1 text-sm">
+            <li className="font-semibold cursor-pointer">All categories</li>
 
-        {/* Main Content */}
+            {categories.map((cat) => (
+              <li key={cat._id}>
+                <div className="font-semibold">{cat.name}</div>
+
+                {subCategories
+                  .filter((sub) => sub.categoryId.toString() === cat._id.toString())
+                  .map((sub) => (
+                    <label key={sub._id} className="flex items-center space-x-2 ml-4">
+                      <input
+                        type="checkbox"
+                        value={sub._id}
+                        onChange={handleSubCategoryChange}
+                      />
+                      <span>{sub.name}</span>
+                    </label>
+                  ))}
+              </li>
+            ))}
+          </ul>
+        </aside>
+
+        {/* Main Product Area */}
         <main className="flex-1 p-6">
+          {/* Action Buttons */}
           <div className="flex justify-end space-x-4 mb-6">
             <button
               className="bg-[#d39c32] text-white px-4 py-2 rounded"
@@ -77,7 +109,10 @@ const Home = () => {
             >
               Add category
             </button>
-            <button className="bg-[#d39c32] text-white px-4 py-2 rounded">
+            <button
+              className="bg-[#d39c32] text-white px-4 py-2 rounded"
+              onClick={() => setShowAddSubCategory(true)}
+            >
               Add sub category
             </button>
             <button className="bg-[#d39c32] text-white px-4 py-2 rounded">
@@ -137,9 +172,13 @@ const Home = () => {
         </main>
       </div>
 
-      {/* ✅ Modal for Add Category */}
+      {/* Modals */}
       <Modal isOpen={showAddCategory} onClose={() => setShowAddCategory(false)}>
         <AddCategory onClose={() => setShowAddCategory(false)} />
+      </Modal>
+
+      <Modal isOpen={showAddSubCategory} onClose={() => setShowAddSubCategory(false)}>
+        <AddSubCategory onClose={() => setShowAddSubCategory(false)} />
       </Modal>
     </div>
   );
