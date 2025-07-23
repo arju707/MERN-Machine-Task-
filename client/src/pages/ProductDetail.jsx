@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const ProductDetail = () => {
@@ -8,6 +8,23 @@ const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState("");
   const [selectedRAM, setSelectedRAM] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const navigate = useNavigate();
+  const addToWishlist = () => {
+  const current = JSON.parse(localStorage.getItem("wishlist")) || [];
+  const exists = current.find((p) => p._id === product._id);
+  if (!exists) {
+    current.push(product);
+    localStorage.setItem("wishlist", JSON.stringify(current));
+    navigate("/wishlist");
+    // alert("Added to wishlist");
+  } else {
+
+    navigate("/wishlist");
+    
+    alert("Already in wishlist");
+  }
+};
+
 
   useEffect(() => {
     axios
@@ -108,7 +125,7 @@ const ProductDetail = () => {
             <button className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded shadow">
               Buy it now
             </button>
-            <button className="border rounded-full p-3 text-xl">🤍</button>
+            <button className="border rounded-full p-3 text-xl" onClick={addToWishlist}>🤍</button>
           </div>
         </div>
       </div>
