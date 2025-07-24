@@ -1,5 +1,5 @@
 import express from "express";
-import Wishlist from "../models/WishList.js";
+import Wishlist from "../models/Wishlist.js";
 
 const router = express.Router();
 
