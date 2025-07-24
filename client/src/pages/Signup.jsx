@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; 
-import { createPortal } from "react-dom"; //custom alert box 
+import { useNavigate } from "react-router-dom";
+import { createPortal } from "react-dom"; //custom alert box
 
 // component for messagebox (using insted of alert message)
 const MessageBox = ({ message, onClose }) => {
@@ -22,7 +22,11 @@ const MessageBox = ({ message, onClose }) => {
 };
 
 const Signup = () => {
-  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
   const [message, setMessage] = useState(null); // State for custom message box
   const navigate = useNavigate();
 
@@ -36,16 +40,15 @@ const Signup = () => {
     try {
       // Send signup data to the backend
       await axios.post("http://localhost:5000/api/auth/signup", formData);
-      setMessage("Signup successful!"); 
+      setMessage("Signup successful!");
 
-      // Navigate to login page 
+      // Navigate to login page
       setTimeout(() => {
-        setMessage(null); 
+        setMessage(null);
         navigate("/login");
       }, 1500);
     } catch (err) {
-
-      // Set error message from backend 
+      // Set error message from backend
       setMessage(err.response?.data?.message || "Signup failed");
     }
   };
@@ -59,7 +62,9 @@ const Signup = () => {
         <div className="absolute top-1/4 right-1/4 w-16 h-16 bg-white bg-opacity-10 rounded-md transform rotate-12"></div>
         <div className="absolute bottom-1/4 left-1/4 w-20 h-20 bg-white bg-opacity-10 rounded-md transform -rotate-24"></div>
 
-        <h2 className="text-5xl font-bold mb-4 text-center z-10">Welcome Back!</h2>
+        <h2 className="text-5xl font-bold mb-4 text-center z-10">
+          Welcome Back!
+        </h2>
         <p className="text-lg text-center mb-8 max-w-sm z-10">
           To keep connected with us please login with your personal info
         </p>
@@ -77,7 +82,9 @@ const Signup = () => {
           onSubmit={handleSubmit}
           className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg space-y-6"
         >
-          <h2 className="text-4xl font-bold text-[#e67e22] text-center mb-6">Create Account</h2>
+          <h2 className="text-4xl font-bold text-[#e67e22] text-center mb-6">
+            Create Account
+          </h2>
 
           {/* Name Input */}
           <div className="relative">
@@ -168,7 +175,9 @@ const Signup = () => {
       </div>
 
       {/* Custom Message Box */}
-      {message && <MessageBox message={message} onClose={() => setMessage(null)} />}
+      {message && (
+        <MessageBox message={message} onClose={() => setMessage(null)} />
+      )}
     </div>
   );
 };

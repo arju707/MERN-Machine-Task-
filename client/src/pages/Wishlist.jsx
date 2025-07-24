@@ -15,6 +15,20 @@ const Wishlist = () => {
     localStorage.setItem("wishlist", JSON.stringify(updated));
   };
 
+  const addToWishlist = async (productId) => {
+    const userId = localStorage.getItem("userId"); // Ensure you store user ID after login
+    await axios.post("http://localhost:5000/api/wishlist", {
+      userId,
+      productId,
+    });
+    fetchWishlist(); // Refetch items
+  };
+
+  const fetchWishlist = async () => {
+    const userId = localStorage.getItem("userId");
+    const res = await axios.get(`http://localhost:5000/api/wishlist/${userId}`);
+    setWishlist(res.data.map((item) => item.productId)); // extract product details
+  };
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">My Wishlist</h2>

@@ -81,7 +81,9 @@ router.get("/", async (req, res) => {
 // GET: Get product by ID
 router.get("/:id", async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate("subCategoryId");
+    const product = await Product.findById(req.params.id).populate(
+      "subCategoryId"
+    );
     if (!product) return res.status(404).json({ message: "Product not found" });
     res.json(product);
   } catch (err) {
@@ -107,11 +109,16 @@ router.put("/:id", upload.array("images"), async (req, res) => {
       updateData.images = req.files.map((file) => `/uploads/${file.filename}`);
     }
 
-    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, updateData, {
-      new: true,
-    });
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      {
+        new: true,
+      }
+    );
 
-    if (!updatedProduct) return res.status(404).json({ message: "Product not found" });
+    if (!updatedProduct)
+      return res.status(404).json({ message: "Product not found" });
 
     res.status(200).json(updatedProduct);
   } catch (err) {
@@ -119,6 +126,5 @@ router.put("/:id", upload.array("images"), async (req, res) => {
     res.status(500).json({ message: "Failed to update product" });
   }
 });
-
 
 export default router;

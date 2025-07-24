@@ -130,7 +130,7 @@ const Home = () => {
           </Link>
           <span className="cursor-pointer">Sign in</span>
           <Link to="/wishlist">
-          <span className="cursor-pointer">🛒</span>
+            <span className="cursor-pointer">🛒</span>
           </Link>
         </div>
       </div>
