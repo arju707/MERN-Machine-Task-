@@ -34,12 +34,12 @@ router.post("/", upload.array("images"), async (req, res) => {
     const saved = await newProduct.save();
     res.status(201).json(saved);
   } catch (err) {
-    console.error("❌ BACKEND ERROR:", err);
+    console.error("BACKEND ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 });
 
-// ✅ GET: Products with search, subCategory filter, and pagination
+// GET: Products with search, subCategory filter, and pagination
 router.get("/", async (req, res) => {
   const { search, subCategories, page = 1, limit = 10 } = req.query;
 
@@ -73,7 +73,7 @@ router.get("/", async (req, res) => {
       products,
     });
   } catch (err) {
-    console.error("❌ Fetch Error:", err);
+    console.error("Fetch Error:", err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -88,5 +88,37 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+// PUT: Update an existing product
+router.put("/:id", upload.array("images"), async (req, res) => {
+  try {
+    const { title, description, subCategory, variants } = req.body;
+    const parsedVariants = JSON.parse(variants);
+
+    const updateData = {
+      name: title,
+      description,
+      subCategoryId: subCategory,
+      variants: parsedVariants,
+    };
+
+    // If new images are uploaded
+    if (req.files && req.files.length > 0) {
+      updateData.images = req.files.map((file) => `/uploads/${file.filename}`);
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+    });
+
+    if (!updatedProduct) return res.status(404).json({ message: "Product not found" });
+
+    res.status(200).json(updatedProduct);
+  } catch (err) {
+    console.error(" Update product error:", err);
+    res.status(500).json({ message: "Failed to update product" });
+  }
+});
+
 
 export default router;

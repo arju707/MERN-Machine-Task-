@@ -23,7 +23,7 @@ const MessageBox = ({ message, onClose }) => {
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [message, setMessage] = useState(null); // State for custom message box
+  const [message, setMessage] = useState(null);  // State for custom message box
   const navigate = useNavigate();
 
   // Handle input changes
@@ -35,7 +35,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", formData);
-      setMessage("Login successful!"); // Set success message
+      setMessage("Login successful!");   // Set success message
       localStorage.setItem("token", res.data.token);
       // Navigate to dashboard after a short delay to allow message to be seen
       setTimeout(() => {
@@ -49,7 +49,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex font-sans">
-      {/* Left Section: Sign In to Your Account Form */}
+      {/* Left Section: Sign In to  Account Form */}
       <div className="flex flex-col items-center justify-center flex-1 bg-white p-8 md:p-12">
         <form
           onSubmit={handleSubmit}
@@ -128,9 +128,8 @@ const Login = () => {
         </form>
       </div>
 
-      {/* Right Section: Hello Friend! */}
+      {/* Right Section*/}
       <div className="hidden md:flex flex-col items-center justify-center w-1/2 bg-[#2c3e50] text-white p-8 relative overflow-hidden rounded-l-3xl">
-        {/* Background shapes (similar to signup for consistency) */}
         <div className="absolute top-10 right-10 w-24 h-24 bg-white bg-opacity-10 rounded-full transform rotate-45"></div>
         <div className="absolute bottom-20 left-20 w-32 h-32 bg-white bg-opacity-10 rounded-full transform -rotate-30"></div>
         <div className="absolute top-1/4 left-1/4 w-16 h-16 bg-white bg-opacity-10 rounded-md transform rotate-12"></div>
@@ -141,7 +140,7 @@ const Login = () => {
           Enter your personal details and start your journey with us
         </p>
         <button
-          onClick={() => navigate("/signup")} // Navigate to signup page
+          onClick={() => navigate("/signup")}  // Navigate to signup page
           className="px-10 py-3 border-2 border-white text-white rounded-full text-lg font-semibold hover:bg-white hover:text-[#2c3e50] transition duration-300 z-10"
         >
           SIGN UP

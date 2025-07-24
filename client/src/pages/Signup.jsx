@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Assuming you have react-router-dom installed
-import { createPortal } from "react-dom"; // For the custom alert/message box
+import { useNavigate } from "react-router-dom"; 
+import { createPortal } from "react-dom"; //custom alert box 
 
-// Component for a custom message box (instead of alert())
+// component for messagebox (using insted of alert message)
 const MessageBox = ({ message, onClose }) => {
   return createPortal(
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
@@ -36,23 +36,24 @@ const Signup = () => {
     try {
       // Send signup data to the backend
       await axios.post("http://localhost:5000/api/auth/signup", formData);
-      setMessage("Signup successful!"); // Set success message
-      // Navigate to login page after a short delay to allow message to be seen
+      setMessage("Signup successful!"); 
+
+      // Navigate to login page 
       setTimeout(() => {
-        setMessage(null); // Clear message
+        setMessage(null); 
         navigate("/login");
       }, 1500);
     } catch (err) {
-      // Set error message from backend or a generic one
+
+      // Set error message from backend 
       setMessage(err.response?.data?.message || "Signup failed");
     }
   };
 
   return (
     <div className="min-h-screen flex font-sans">
-      {/* Left Section: Welcome Back */}
+      {/* Left Section*/}
       <div className="hidden md:flex flex-col items-center justify-center w-1/2 bg-[#2c3e50] text-white p-8 relative overflow-hidden rounded-r-3xl">
-        {/* Background shapes */}
         <div className="absolute top-10 left-10 w-24 h-24 bg-white bg-opacity-10 rounded-full transform rotate-45"></div>
         <div className="absolute bottom-20 right-20 w-32 h-32 bg-white bg-opacity-10 rounded-full transform -rotate-30"></div>
         <div className="absolute top-1/4 right-1/4 w-16 h-16 bg-white bg-opacity-10 rounded-md transform rotate-12"></div>
@@ -70,7 +71,7 @@ const Signup = () => {
         </button>
       </div>
 
-      {/* Right Section: Create Account Form */}
+      {/* Right Section*/}
       <div className="flex flex-col items-center justify-center flex-1 bg-white p-8 md:p-12">
         <form
           onSubmit={handleSubmit}

@@ -27,7 +27,7 @@ const Home = () => {
   const [limit, setLimit] = useState(9);
   const [totalPages, setTotalPages] = useState(1);
 
-  // ✅ Fetch products
+  //  Fetch products
   const fetchProducts = async (
     query = searchTerm,
     subCategoryFilter = selectedSubCategories,
@@ -97,6 +97,7 @@ const Home = () => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top Navigation */}
+
       <div className="bg-[#0b3d5c] text-white px-6 py-4 flex justify-between items-center">
         <div className="text-xl font-bold">MyStore</div>
         <div className="flex-1 mx-6">
@@ -124,15 +125,19 @@ const Home = () => {
           Search
         </button>
         <div className="flex items-center space-x-4">
-          <span className="cursor-pointer">❤️</span>
+          <Link to="/wishlist">
+            <span className="cursor-pointer">❤️</span>
+          </Link>
           <span className="cursor-pointer">Sign in</span>
           <span className="cursor-pointer">🛒</span>
         </div>
       </div>
 
       {/* Main Content */}
+
       <div className="flex flex-1">
         {/* Sidebar */}
+
         <aside className="w-60 border-r p-4">
           <h2 className="font-bold text-lg mb-2">Categories</h2>
           <ul className="space-y-1 text-sm">
@@ -147,8 +152,9 @@ const Home = () => {
                       key={sub._id}
                       className="flex items-center space-x-2 ml-4"
                     >
-                      <input
+                      <input //check box filtration
                         type="checkbox"
+                        value={sub._id}
                         onChange={handleSubCategoryChange}
                         checked={selectedSubCategories.includes(sub._id)}
                       />
@@ -161,6 +167,7 @@ const Home = () => {
         </aside>
 
         {/* Product List */}
+
         <main className="flex-1 p-6">
           <div className="flex justify-end space-x-4 mb-6">
             <button
@@ -181,10 +188,10 @@ const Home = () => {
               </button>
             </Link>
           </div>
-          
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {products.map((product) => (
-                 <Link to={`/product/${product._id}`} key={product._id}>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {products.map((product) => (
+              <Link to={`/product/${product._id}`} key={product._id}>
                 <div key={product._id} className="border rounded shadow p-4">
                   <img
                     src={`http://localhost:5000${product.images?.[0]}`}
@@ -203,11 +210,12 @@ const Home = () => {
                     ))}
                   </ul>
                 </div>
-                </Link>
-              ))}
-            </div>
-          
+              </Link>
+            ))}
+          </div>
+
           {/* Pagination */}
+
           <div className="flex justify-between items-center mt-6">
             <p className="text-sm text-gray-600">
               Page {page} of {totalPages}
@@ -248,6 +256,7 @@ const Home = () => {
       </div>
 
       {/* Modals */}
+
       <Modal isOpen={showAddCategory} onClose={() => setShowAddCategory(false)}>
         <AddCategory onClose={() => setShowAddCategory(false)} />
       </Modal>

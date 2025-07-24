@@ -8,7 +8,7 @@ const AddSubCategory = ({ onClose }) => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchCategories = async () => {  //fetching current categories
       try {
         const res = await axios.get("http://localhost:5000/api/categories");
         setCategories(res.data);
@@ -19,7 +19,7 @@ const AddSubCategory = ({ onClose }) => {
     fetchCategories();
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {   //for handling the form sumbition
     e.preventDefault();
     try {
       await axios.post("http://localhost:5000/api/subcategories", {

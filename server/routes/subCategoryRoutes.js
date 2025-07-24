@@ -1,6 +1,5 @@
-// routes/subCategoryRoutes.js
 import express from "express";
-import SubCategory from "../models/subCategoryModel.js"; // make sure this path is correct
+import SubCategory from "../models/subCategoryModel.js"; 
 
 const router = express.Router();
 

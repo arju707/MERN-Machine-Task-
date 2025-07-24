@@ -1,4 +1,4 @@
-// controllers/productController.js
+
 import { find } from "../models/product.js";
 
 const getProducts = async (req, res) => {
@@ -6,7 +6,7 @@ const getProducts = async (req, res) => {
     const search = req.query.search || "";
 
     const products = await find({
-      name: { $regex: search, $options: "i" }, // case-insensitive partial match
+      name: { $regex: search, $options: "i" }, 
     });
 
     res.json(products);

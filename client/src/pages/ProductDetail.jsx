@@ -10,21 +10,19 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
   const addToWishlist = () => {
-  const current = JSON.parse(localStorage.getItem("wishlist")) || [];
-  const exists = current.find((p) => p._id === product._id);
-  if (!exists) {
-    current.push(product);
-    localStorage.setItem("wishlist", JSON.stringify(current));
-    navigate("/wishlist");
-    // alert("Added to wishlist");
-  } else {
+    const current = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const exists = current.find((p) => p._id === product._id);
+    if (!exists) {
+      current.push(product);
+      localStorage.setItem("wishlist", JSON.stringify(current));
+      navigate("/wishlist");
+      // alert("Added to wishlist");
+    } else {
+      navigate("/wishlist");
 
-    navigate("/wishlist");
-    
-    alert("Already in wishlist");
-  }
-};
-
+      alert("Already in wishlist");
+    }
+  };
 
   useEffect(() => {
     axios
@@ -68,14 +66,23 @@ const ProductDetail = () => {
 
         {/* Right - Info */}
         <div className="md:w-1/2 space-y-4">
-          <h1 className="text-2xl font-semibold text-gray-800">{product.name}</h1>
-          <p className="text-2xl font-bold text-gray-800">₹{product.variants[0]?.price}</p>
+          <h1 className="text-2xl font-semibold text-gray-800">
+            {product.name}
+          </h1>
+          <p className="text-2xl font-bold text-gray-800">
+            ₹{product.variants[0]?.price}
+          </p>
 
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-700">Availability:</span>
+            <span className="text-sm font-medium text-gray-700">
+              Availability:
+            </span>
             <span className="text-green-600 font-semibold">✔ In stock</span>
           </div>
-          <p className="text-sm text-gray-500">Hurry up! Only {product.variants[0]?.quantity} product left in stock!</p>
+          <p className="text-sm text-gray-500">
+            Hurry up! Only {product.variants[0]?.quantity} product left in
+            stock!
+          </p>
 
           <hr className="my-4" />
 
@@ -87,7 +94,9 @@ const ProductDetail = () => {
                 <button
                   key={i}
                   className={`px-4 py-1 border rounded ${
-                    selectedRAM === v.ram ? "bg-gray-800 text-white" : "bg-gray-100"
+                    selectedRAM === v.ram
+                      ? "bg-gray-800 text-white"
+                      : "bg-gray-100"
                   }`}
                   onClick={() => setSelectedRAM(v.ram)}
                 >
@@ -119,13 +128,21 @@ const ProductDetail = () => {
 
           {/* Action Buttons */}
           <div className="mt-6 flex gap-4">
-            <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded shadow">
+            <button
+              onClick={() => navigate(`/add-product/${product._id}`)}
+              className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded shadow"
+            >
               Edit product
             </button>
             <button className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded shadow">
               Buy it now
             </button>
-            <button className="border rounded-full p-3 text-xl" onClick={addToWishlist}>🤍</button>
+            <button
+              className="border rounded-full p-3 text-xl"
+              onClick={addToWishlist}
+            >
+              🤍
+            </button>
           </div>
         </div>
       </div>

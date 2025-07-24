@@ -13,7 +13,30 @@ const AddProduct = () => {
   const [previewImages, setPreviewImages] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
 
-  // Fetch subcategories
+  const { id } = useParams();
+
+  useEffect(() => {  //for editing the product
+    if (id) {
+      axios
+        .get(`http://localhost:5000/api/products/${id}`)
+        .then((res) => {
+          const p = res.data;
+          setTitle(p.name);
+          setDescription(p.description);
+          setSubCategory(p.subCategoryId?._id || p.subCategoryId);
+          setVariants(p.variants);
+          setPreviewImages(
+            p.images.map((img) => `http://localhost:5000${img}`)
+          );
+          setImages([]); 
+        })
+        .catch((err) =>
+          console.error("Failed to load product for editing", err)
+        );
+    }
+  }, [id]);
+
+  //  For Fetching subcategories
   useEffect(() => {
     const fetchSubCategories = async () => {
       try {
@@ -50,7 +73,7 @@ const AddProduct = () => {
     setPreviewImages(previews);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {  //for hsndling the submit
     e.preventDefault();
     try {
       const formData = new FormData();
@@ -60,15 +83,14 @@ const AddProduct = () => {
       formData.append("variants", JSON.stringify(variants));
       images.forEach((img) => formData.append("images", img));
 
-      const res = await axios.post(
-        "http://localhost:5000/api/products",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const res = await axios({
+        method: id ? "put" : "post",
+        url: `http://localhost:5000/api/products${id ? `/${id}` : ""}`,
+        data: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       alert("Product added successfully!");
       console.log("Saved product:", res.data);
 
