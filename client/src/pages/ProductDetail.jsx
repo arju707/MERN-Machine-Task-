@@ -6,7 +6,7 @@ const ProductDetail = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState("");
-  const [selectedRAM, setSelectedRAM] = useState("");
+  const [selectedVariant, setSelectedVariant] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
   const addToWishlist = () => {
@@ -30,7 +30,7 @@ const ProductDetail = () => {
       .then((res) => {
         setProduct(res.data);
         setSelectedImage(res.data.images?.[0]);
-        setSelectedRAM(res.data.variants?.[0]?.ram || "");
+        setSelectedVariant(res.data.variants?.[0]); // ✅
       })
       .catch((err) => console.error("Failed to fetch product", err));
   }, [id]);
@@ -70,7 +70,7 @@ const ProductDetail = () => {
             {product.name}
           </h1>
           <p className="text-2xl font-bold text-gray-800">
-            ₹{product.variants[0]?.price}
+            ₹{selectedVariant?.price || 0}
           </p>
 
           <div className="flex items-center gap-2">
@@ -80,7 +80,7 @@ const ProductDetail = () => {
             <span className="text-green-600 font-semibold">✔ In stock</span>
           </div>
           <p className="text-sm text-gray-500">
-            Hurry up! Only {product.variants[0]?.quantity} product left in
+            Hurry up! Only {selectedVariant?.quantity || 0} product left in
             stock!
           </p>
 
@@ -94,11 +94,11 @@ const ProductDetail = () => {
                 <button
                   key={i}
                   className={`px-4 py-1 border rounded ${
-                    selectedRAM === v.ram
+                    selectedVariant?.ram === v.ram
                       ? "bg-gray-800 text-white"
                       : "bg-gray-100"
                   }`}
-                  onClick={() => setSelectedRAM(v.ram)}
+                  onClick={() => setSelectedVariant(v)}
                 >
                   {v.ram} GB
                 </button>

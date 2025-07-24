@@ -100,7 +100,7 @@ const Home = () => {
 
       <div className="bg-[#0b3d5c] text-white px-6 py-4 flex justify-between items-center">
         <div className="text-xl font-bold">MyStore</div>
-        <div className="flex-1 mx-6">
+        <div className="flex-1 mx-6 rounded-2xl border-2">
           <input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -126,10 +126,12 @@ const Home = () => {
         </button>
         <div className="flex items-center space-x-4">
           <Link to="/wishlist">
-            <span className="cursor-pointer">❤️</span>
+            <span className="cursor-pointer">WishList</span>
           </Link>
           <span className="cursor-pointer">Sign in</span>
+          <Link to="/wishlist">
           <span className="cursor-pointer">🛒</span>
+          </Link>
         </div>
       </div>
 
@@ -205,7 +207,7 @@ const Home = () => {
                   <ul className="text-sm">
                     {product.variants.map((v, i) => (
                       <li key={i}>
-                        RAM {v.ram} GB – ₹{v.price} ({v.quantity} pcs)
+                        RAM {v.ram} GB – ₹{v.price}
                       </li>
                     ))}
                   </ul>
